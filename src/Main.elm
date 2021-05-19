@@ -2,8 +2,8 @@ module Main exposing (..)
 
 import Browser
 import Dict exposing (Dict)
-import Html exposing (Html, div, h1, input, table, tbody, td, text, th, thead, tr)
-import Html.Attributes exposing (class, placeholder, value)
+import Html exposing (Html, div, h1, input, table, tbody, td, text, tfoot, th, thead, tr)
+import Html.Attributes exposing (class, colspan, placeholder, value)
 import Html.Events exposing (onInput)
 import Time
 
@@ -16,8 +16,12 @@ type alias Model =
     { commandName : String
     , commandStartDate : Time.Posix
     , products : List Product
-    , currentOrder : Dict String Int
+    , currentOrder : Order
     }
+
+
+type alias Order =
+    Dict String Int
 
 
 type alias Product =
@@ -72,21 +76,43 @@ view model =
         ]
 
 
+getOrderTotalAmout : Model -> Order -> Float
+getOrderTotalAmout model order =
+    let
+        accu id quantity total =
+            let
+                price =
+                    case model.products |> List.filter (\p -> p.id == id) |> List.head of
+                        Just product ->
+                            .price product
+
+                        Nothing ->
+                            toFloat 0
+            in
+            total + price * (quantity |> toFloat)
+    in
+    Dict.foldl accu 0 order
+
+
 viewOrderProducts : Model -> List Product -> Html Msg
 viewOrderProducts model products =
     table []
         [ thead
             []
             [ tr []
-                [ th [ class "product" ]
-                    [ text "Produit" ]
-                , th [ class "price" ]
-                    [ text "Prix" ]
-                , th [ class "amount" ]
-                    [ text "Commande" ]
+                [ th [ class "product" ] [ text "Produit" ]
+                , th [ class "price" ] [ text "Prix" ]
+                , th [ class "amount" ] [ text "Commande" ]
+                , th [ class "subtotal" ] [ text "Sous-totaux" ]
                 ]
             ]
         , tbody [] (products |> List.map (viewTableLine model))
+        , tfoot []
+            [ tr []
+                [ th [ class "total", colspan 3 ] [ text "Total" ]
+                , th [ class "total" ] [ getOrderTotalAmout model model.currentOrder |> String.fromFloat |> text ]
+                ]
+            ]
         ]
 
 
@@ -95,6 +121,14 @@ viewTableLine model product =
     let
         quantity =
             Maybe.withDefault 0 (model.currentOrder |> Dict.get product.id)
+
+        price =
+            case model.products |> List.filter (\r -> r.id == product.id) |> List.head of
+                Just record ->
+                    .price record
+
+                Nothing ->
+                    0
     in
     tr []
         [ td [] [ text product.name ]
@@ -107,6 +141,14 @@ viewTableLine model product =
                 , value (String.fromInt quantity)
                 ]
                 []
+            ]
+        , td []
+            [ case quantity of
+                0 ->
+                    text "—"
+
+                s ->
+                    toFloat quantity * price |> String.fromFloat |> text
             ]
         ]
 
