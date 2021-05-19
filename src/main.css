@@ -29,3 +29,7 @@ img {
 .container {
   max-width: 600px !important;
 }
+.description {
+  font-size: 0.8em;
+  font-style: italic;
+}

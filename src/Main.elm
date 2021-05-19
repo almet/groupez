@@ -2,7 +2,7 @@ module Main exposing (..)
 
 import Browser
 import Dict exposing (Dict)
-import Html exposing (Html, div, h1, h2, input, table, tbody, td, text, tfoot, th, thead, tr)
+import Html exposing (Html, div, h1, h2, input, p, table, tbody, td, text, tfoot, th, thead, tr)
 import Html.Attributes exposing (class, colspan, placeholder, value)
 import Html.Events exposing (onInput)
 import String.Extra
@@ -34,6 +34,7 @@ type alias Order =
 type alias Product =
     { id : String
     , name : String
+    , description : String
     , price : Float
     }
 
@@ -44,8 +45,8 @@ init =
       , orderBefore = Time.millisToPosix 1652983709000
       , expectedDeliveryDate = Time.millisToPosix 0
       , products =
-            [ Product "vin-orange" "Vin Orange" 12.3
-            , Product "vin-rouge" "Vin rouge" 13
+            [ Product "vent-se-leve-blanc" "Vent se lève Blanc" "100% Macabeu,  Nez fruité, fruits blancs. Arômes : Fraicheur, Anis, Finale fumée" 12.3
+            , Product "vin-rouge" "Vin rouge" "" 13
             ]
       , currentOrder = Dict.empty
       , orderName = ""
@@ -147,6 +148,15 @@ getOrderTotalAmout model order =
 
 viewOrderTable : Model -> List Product -> Html Msg
 viewOrderTable model products =
+    let
+        total =
+            case getOrderTotalAmout model model.currentOrder |> String.fromFloat of
+                "0" ->
+                    ""
+
+                amount ->
+                    amount ++ "€"
+    in
     table []
         [ thead
             []
@@ -161,7 +171,7 @@ viewOrderTable model products =
         , tfoot []
             [ tr []
                 [ th [ class "total", colspan 3 ] [ text "Total de votre commande" ]
-                , th [ class "total" ] [ getOrderTotalAmout model model.currentOrder |> String.fromFloat |> text ]
+                , th [ class "total" ] [ total |> text ]
                 ]
             ]
         ]
@@ -182,8 +192,8 @@ viewTableLine model product =
                     0
     in
     tr []
-        [ td [] [ text product.name ]
-        , td [] [ product.price |> String.fromFloat |> text ]
+        [ td [] [ div [] [ text product.name, p [ class "description" ] [ text product.description ] ] ]
+        , td [] [ text <| (product.price |> String.fromFloat) ++ "€" ]
         , td []
             [ input
                 [ placeholder "Entrez la quantité que vous souhaitez commander"
@@ -199,7 +209,7 @@ viewTableLine model product =
                     text "—"
 
                 _ ->
-                    toFloat quantity * price |> String.fromFloat |> text
+                    text <| (toFloat quantity * price |> String.fromFloat) ++ "€"
             ]
         ]
 
