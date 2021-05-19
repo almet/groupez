@@ -2,10 +2,13 @@ module Main exposing (..)
 
 import Browser
 import Dict exposing (Dict)
-import Html exposing (Html, div, h1, input, table, tbody, td, text, tfoot, th, thead, tr)
+import Html exposing (Html, div, h1, h2, input, table, tbody, td, text, tfoot, th, thead, tr)
 import Html.Attributes exposing (class, colspan, placeholder, value)
 import Html.Events exposing (onInput)
+import String.Extra
 import Time
+import Time.Format
+import Time.Format.Config.Config_fr_fr exposing (config)
 
 
 
@@ -14,9 +17,13 @@ import Time
 
 type alias Model =
     { commandName : String
-    , commandStartDate : Time.Posix
+    , orderBefore : Time.Posix
+    , expectedDeliveryDate : Time.Posix
     , products : List Product
     , currentOrder : Order
+    , orderPhoneNumber : String
+    , orderEmail : String
+    , orderName : String
     }
 
 
@@ -34,12 +41,16 @@ type alias Product =
 init : ( Model, Cmd Msg )
 init =
     ( { commandName = "Commande chez Hervé"
-      , commandStartDate = Time.millisToPosix 0
+      , orderBefore = Time.millisToPosix 1652983709000
+      , expectedDeliveryDate = Time.millisToPosix 0
       , products =
             [ Product "vin-orange" "Vin Orange" 12.3
             , Product "vin-rouge" "Vin rouge" 13
             ]
       , currentOrder = Dict.empty
+      , orderName = ""
+      , orderPhoneNumber = ""
+      , orderEmail = ""
       }
     , Cmd.none
     )
@@ -51,6 +62,9 @@ init =
 
 type Msg
     = UpdateOrderQuantity String String
+    | UpdateOrderName String
+    | UpdateOrderPhoneNumber String
+    | UpdateOrderEmail String
     | NoOp
 
 
@@ -59,6 +73,15 @@ update msg model =
     case msg of
         UpdateOrderQuantity productId quantity ->
             ( { model | currentOrder = Dict.update productId (\_ -> String.toInt quantity) model.currentOrder }, Cmd.none )
+
+        UpdateOrderName name ->
+            ( { model | orderName = name }, Cmd.none )
+
+        UpdateOrderPhoneNumber phoneNumber ->
+            ( { model | orderPhoneNumber = phoneNumber |> String.filter Char.isDigit |> String.Extra.wrapWith 2 " " }, Cmd.none )
+
+        UpdateOrderEmail email ->
+            ( { model | orderEmail = email }, Cmd.none )
 
         NoOp ->
             ( model, Cmd.none )
@@ -72,7 +95,35 @@ view : Model -> Html Msg
 view model =
     div [ class "container" ]
         [ h1 [] [ text model.commandName ]
-        , viewOrderProducts model model.products
+        , div [ class "date" ]
+            [ "📅 Commandez avant le " ++ Time.Format.format config "%-d %B %Y" Time.utc model.orderBefore |> text
+            ]
+        , viewOrderTable model model.products
+        , viewContactForm model
+        ]
+
+
+viewContactForm : Model -> Html Msg
+viewContactForm model =
+    div [ class "contact-form" ]
+        [ input
+            [ placeholder "Votre nom ?"
+            , onInput UpdateOrderName
+            , value model.orderName
+            ]
+            []
+        , input
+            [ placeholder "Entrez un email"
+            , onInput UpdateOrderEmail
+            , value model.orderEmail
+            ]
+            []
+        , input
+            [ placeholder "Entrez un numéro de téléphone"
+            , onInput UpdateOrderPhoneNumber
+            , value model.orderPhoneNumber
+            ]
+            []
         ]
 
 
@@ -94,8 +145,8 @@ getOrderTotalAmout model order =
     Dict.foldl accu 0 order
 
 
-viewOrderProducts : Model -> List Product -> Html Msg
-viewOrderProducts model products =
+viewOrderTable : Model -> List Product -> Html Msg
+viewOrderTable model products =
     table []
         [ thead
             []
@@ -109,7 +160,7 @@ viewOrderProducts model products =
         , tbody [] (products |> List.map (viewTableLine model))
         , tfoot []
             [ tr []
-                [ th [ class "total", colspan 3 ] [ text "Total" ]
+                [ th [ class "total", colspan 3 ] [ text "Total de votre commande" ]
                 , th [ class "total" ] [ getOrderTotalAmout model model.currentOrder |> String.fromFloat |> text ]
                 ]
             ]
@@ -147,7 +198,7 @@ viewTableLine model product =
                 0 ->
                     text "—"
 
-                s ->
+                _ ->
                     toFloat quantity * price |> String.fromFloat |> text
             ]
         ]
