@@ -2,7 +2,7 @@ module Main exposing (..)
 
 import Browser
 import Dict exposing (Dict)
-import Html exposing (Html, div, h1, h2, input, p, table, tbody, td, text, tfoot, th, thead, tr)
+import Html exposing (Html, button, div, h1, h2, input, p, table, tbody, td, text, tfoot, th, thead, tr)
 import Html.Attributes exposing (class, colspan, placeholder, value)
 import Html.Events exposing (onInput)
 import String.Extra
@@ -125,7 +125,29 @@ viewContactForm model =
             , value model.orderPhoneNumber
             ]
             []
+        , case isOrderReady model of
+            True ->
+                button [ class "button float-right" ] [ text "Enregistrer" ]
+
+            False ->
+                p [] []
         ]
+
+
+isOrderReady : Model -> Bool
+isOrderReady model =
+    if
+        model.orderName
+            /= ""
+            && model.orderPhoneNumber
+            /= ""
+            && (model.orderPhoneNumber |> String.replace " " "" |> String.length)
+            >= 10
+    then
+        True
+
+    else
+        False
 
 
 getOrderTotalAmout : Model -> Order -> Float
