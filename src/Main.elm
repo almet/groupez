@@ -1,14 +1,16 @@
 module Main exposing (..)
 
 import Browser
+import Browser.Navigation as Nav
 import Dict exposing (Dict)
-import Html exposing (Html, button, div, h1, h2, input, p, table, tbody, td, text, tfoot, th, thead, tr)
-import Html.Attributes exposing (class, colspan, placeholder, value)
+import Html exposing (..)
+import Html.Attributes exposing (..)
 import Html.Events exposing (onInput)
 import String.Extra
 import Time
 import Time.Format
 import Time.Format.Config.Config_fr_fr exposing (config)
+import Url
 
 
 
@@ -24,6 +26,8 @@ type alias Model =
     , orderPhoneNumber : String
     , orderEmail : String
     , orderName : String
+    , key : Nav.Key
+    , url : Url.Url
     }
 
 
@@ -39,8 +43,8 @@ type alias Product =
     }
 
 
-init : ( Model, Cmd Msg )
-init =
+init : () -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
+init flags url key =
     ( { commandName = "Commande chez Hervé"
       , orderBefore = Time.millisToPosix 1652983709000
       , expectedDeliveryDate = Time.millisToPosix 0
@@ -52,6 +56,8 @@ init =
       , orderName = ""
       , orderPhoneNumber = ""
       , orderEmail = ""
+      , key = key
+      , url = url
       }
     , Cmd.none
     )
@@ -66,6 +72,8 @@ type Msg
     | UpdateOrderName String
     | UpdateOrderPhoneNumber String
     | UpdateOrderEmail String
+    | LinkClicked Browser.UrlRequest
+    | UrlChanged Url.Url
     | NoOp
 
 
@@ -84,6 +92,19 @@ update msg model =
         UpdateOrderEmail email ->
             ( { model | orderEmail = email }, Cmd.none )
 
+        LinkClicked urlRequest ->
+            case urlRequest of
+                Browser.Internal url ->
+                    ( model, Nav.pushUrl model.key (Url.toString url) )
+
+                Browser.External href ->
+                    ( model, Nav.load href )
+
+        UrlChanged url ->
+            ( { model | url = url }
+            , Cmd.none
+            )
+
         NoOp ->
             ( model, Cmd.none )
 
@@ -92,8 +113,30 @@ update msg model =
 ---- VIEW ----
 
 
-view : Model -> Html Msg
+view : Model -> Browser.Document Msg
 view model =
+    case model.url.path of
+        "/commander" ->
+            { title = "Commander", body = [ placeOrderView model ] }
+
+        _ ->
+            { title = "Groupez !"
+            , body =
+                [ ul []
+                    [ viewLink "/commander"
+                    , viewLink "/ "
+                    ]
+                ]
+            }
+
+
+viewLink : String -> Html msg
+viewLink path =
+    li [] [ a [ href path ] [ text path ] ]
+
+
+placeOrderView : Model -> Html Msg
+placeOrderView model =
     div [ class "container" ]
         [ h1 [] [ text model.commandName ]
         , div [ class "date" ]
@@ -242,9 +285,11 @@ viewTableLine model product =
 
 main : Program () Model Msg
 main =
-    Browser.element
-        { view = view
-        , init = \_ -> init
+    Browser.application
+        { init = init
+        , view = view
         , update = update
         , subscriptions = always Sub.none
+        , onUrlChange = UrlChanged
+        , onUrlRequest = LinkClicked
         }
