@@ -1,5 +1,6 @@
 module Main exposing (..)
 
+import Api exposing (..)
 import Browser
 import Browser.Navigation as Nav
 import Dict exposing (Dict)
@@ -10,6 +11,7 @@ import String.Extra
 import Time
 import Time.Format
 import Time.Format.Config.Config_fr_fr exposing (config)
+import Types exposing (..)
 import Url
 
 
@@ -18,11 +20,8 @@ import Url
 
 
 type alias Model =
-    { commandName : String
-    , orderBefore : Time.Posix
-    , expectedDeliveryDate : Time.Posix
-    , products : List Product
-    , currentOrder : Order
+    { delivery : Maybe Delivery
+    , currentOrder : DeliveryOrder
     , orderPhoneNumber : String
     , orderEmail : String
     , orderName : String
@@ -31,27 +30,9 @@ type alias Model =
     }
 
 
-type alias Order =
-    Dict String Int
-
-
-type alias Product =
-    { id : String
-    , name : String
-    , description : String
-    , price : Float
-    }
-
-
 init : () -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
 init flags url key =
-    ( { commandName = "Commande chez Hervé"
-      , orderBefore = Time.millisToPosix 1652983709000
-      , expectedDeliveryDate = Time.millisToPosix 0
-      , products =
-            [ Product "vent-se-leve-blanc" "Vent se lève Blanc" "100% Macabeu,  Nez fruité, fruits blancs. Arômes : Fraicheur, Anis, Finale fumée" 12.3
-            , Product "vin-rouge" "Vin rouge" "" 13
-            ]
+    ( { delivery = Nothing
       , currentOrder = Dict.empty
       , orderName = ""
       , orderPhoneNumber = ""
@@ -59,22 +40,12 @@ init flags url key =
       , key = key
       , url = url
       }
-    , Cmd.none
+    , Api.fetchDelivery
     )
 
 
 
 ---- UPDATE ----
-
-
-type Msg
-    = UpdateOrderQuantity String String
-    | UpdateOrderName String
-    | UpdateOrderPhoneNumber String
-    | UpdateOrderEmail String
-    | LinkClicked Browser.UrlRequest
-    | UrlChanged Url.Url
-    | NoOp
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -104,6 +75,16 @@ update msg model =
             ( { model | url = url }
             , Cmd.none
             )
+
+        GotDelivery (Ok delivery) ->
+            ( model, Cmd.none )
+
+        GotDelivery (Err err) ->
+            let
+                _ =
+                    Debug.log "Error while loading the project" err
+            in
+            ( model, Cmd.none )
 
         NoOp ->
             ( model, Cmd.none )
@@ -193,7 +174,7 @@ isOrderReady model =
         False
 
 
-getOrderTotalAmout : Model -> Order -> Float
+getOrderTotalAmout : Model -> DeliveryOrder -> Float
 getOrderTotalAmout model order =
     let
         accu id quantity total =
