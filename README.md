@@ -1,38 +1,37 @@
 # Groupez
 
-« Groupez » est la partie « frontend » d'une application de commande groupée appelée
-[copanier](https://gitlab.com/ybon/copanier), et plus précisément de sa version 2.
-
-L'idée est de simplifier les prises de commandes groupées, à la fois pour les
-groupes de consommateurs⋅ices, et les producteurs⋅ices.
+« Groupez » cherche à faciliter les commandes groupées, en proposant une
+interface simple et concise.
 
 **Attention : ceci est un travail en cours**, et donc n'est pas utilisable en l'état.
 
 ## Comment travailler sur ce projet ?
 
-L'outil est écrit avec le language [Elm](https://elm-lang.org).
+L'outil est écrit avec le language [Elm](https://elm-lang.org) et l'outil
+[Create Elm App](https://github.com/halfzebra/create-elm-app).
 
-Sur Arch Linux, vous pouvez installer les paquets `aur/elm-bin` et
-`aur/create-elm-app`, par exemple avec la commande suivante :
+Sur Arch Linux, vous pouvez les installer avec les commandes suivantes :
 
-  yay aur/elm-bin aur/create-elm-app
+```bash
+yay aur/elm-bin aur/create-elm-app
+```
 
-Une fois installés, (et les sources récupérées, bien sur), vous pouvez lancer
+Une fois installés, (et les sources récupérées bien sur), vous pouvez lancer
 l'application avec la commande:
 
-  elm-app start
+```bash
+elm-app start
+```
 
-Puis pointer votre navigateur web sur http://localhost:3000
+Puis pointez votre navigateur web sur http://localhost:3000
 
 ## Philosophie de projet
 
-L'idée de copanier est de faire un outil simple, qui ne couvre pas tous les
-besoins spécifiques, mais se concentre sur l'essentiel. Nous faisons peu de
-choses, mais le faisons correctement.
+L'idée est de faire un outil qui se concentre sur l'essentiel, au détriment des
+cas spécifiques. Le logiciel à peu de fonctionnalités, par *design*.
 
-Donc :
-
-- Autant que possible, ne pas réinventer la poudre. La liste des produits est
-  par exemple gérée via un tableur.
-- Avoir une interface claire, avec peu de choix, qui va à l'essentiel.
-- Avoir un code simple et concis, autant que possible.
+- Nous essayons de ne pas « réinventer la poudre ». La liste des produits est
+  par exemple gérée via un tableur, qui fait déjà bien ce travail ;
+- Avoir une interface claire, avec peu de choix, qui va à l'essentiel ;
+- Avoir un code simple et concis pour faciliter la maintenance. Le choix du
+langage Elm est fait dans l'optique de réduire le coût de maintenance. 

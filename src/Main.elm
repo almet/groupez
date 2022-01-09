@@ -20,8 +20,8 @@ import Url
 
 
 type alias Model =
-    { delivery : Maybe Delivery
-    , currentOrder : DeliveryOrder
+    { delivery : Maybe Delivery -- The fetched delivery info.
+    , currentOrder : DeliveryOrder -- Dict of ordered products quantitites.
     , orderPhoneNumber : String
     , orderEmail : String
     , orderName : String
@@ -32,7 +32,17 @@ type alias Model =
 
 init : () -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
 init flags url key =
-    ( { delivery = Nothing
+    ( { delivery =
+            Just
+                { status = "pending"
+                , delivery_name = "Commande chez Hervé"
+                , handler_name = "Alexis"
+                , handler_email = "alexis@notmyidea.org"
+                , handler_phone = "0701234567"
+                , products =
+                    [ { id = "vin-blanc", name = "Vin Blanc", description = "Youpi c'est bon !", price = 18 }
+                    ]
+                }
       , currentOrder = Dict.empty
       , orderName = ""
       , orderPhoneNumber = ""
@@ -77,13 +87,9 @@ update msg model =
             )
 
         GotDelivery (Ok delivery) ->
-            ( model, Cmd.none )
+            ( { model | delivery = Just delivery }, Cmd.none )
 
         GotDelivery (Err err) ->
-            let
-                _ =
-                    Debug.log "Error while loading the project" err
-            in
             ( model, Cmd.none )
 
         NoOp ->
@@ -119,13 +125,21 @@ viewLink path =
 placeOrderView : Model -> Html Msg
 placeOrderView model =
     div [ class "container" ]
-        [ h1 [] [ text model.commandName ]
-        , div [ class "date" ]
-            [ "📅 Commandez avant le " ++ Time.Format.format config "%-d %B %Y" Time.utc model.orderBefore |> text
-            ]
-        , viewOrderTable model model.products
-        , viewContactForm model
-        ]
+        (case model.delivery of
+            Just delivery ->
+                [ div []
+                    [ h1 [] [ text delivery.delivery_name ]
+                    , div [ class "date" ]
+                        [--"📅 Commandez avant le " ++ Time.Format.format config "%-d %B %Y" Time.utc delivery.orderBefore |> text
+                        ]
+                    ]
+                , viewOrderTable model delivery model.currentOrder
+                , viewContactForm model
+                ]
+
+            Nothing ->
+                [ text "Récupération des infos en cours" ]
+        )
 
 
 viewContactForm : Model -> Html Msg
@@ -151,11 +165,17 @@ viewContactForm model =
             []
         , case isOrderReady model of
             True ->
-                button [ class "button float-right" ] [ text "Enregistrer" ]
+                button [ class "button float-right" ] [ text "Envoyer la commande" ]
 
             False ->
                 p [] []
         ]
+
+
+
+-- We consider the order ready if :
+-- - the order has a name ;
+-- - a phone number is set and complete;
 
 
 isOrderReady : Model -> Bool
@@ -174,13 +194,13 @@ isOrderReady model =
         False
 
 
-getOrderTotalAmout : Model -> DeliveryOrder -> Float
-getOrderTotalAmout model order =
+getOrderTotalAmout : List Product -> DeliveryOrder -> Float
+getOrderTotalAmout products order =
     let
         accu id quantity total =
             let
                 price =
-                    case model.products |> List.filter (\p -> p.id == id) |> List.head of
+                    case products |> List.filter (\p -> p.id == id) |> List.head of
                         Just product ->
                             .price product
 
@@ -192,11 +212,11 @@ getOrderTotalAmout model order =
     Dict.foldl accu 0 order
 
 
-viewOrderTable : Model -> List Product -> Html Msg
-viewOrderTable model products =
+viewOrderTable : Model -> Delivery -> DeliveryOrder -> Html Msg
+viewOrderTable model delivery currentOrder =
     let
         total =
-            case getOrderTotalAmout model model.currentOrder |> String.fromFloat of
+            case getOrderTotalAmout delivery.products currentOrder |> String.fromFloat of
                 "0" ->
                     ""
 
@@ -213,7 +233,7 @@ viewOrderTable model products =
                 , th [ class "subtotal" ] [ text "Sous-totaux" ]
                 ]
             ]
-        , tbody [] (products |> List.map (viewTableLine model))
+        , tbody [] (delivery.products |> List.map (viewTableLine model delivery))
         , tfoot []
             [ tr []
                 [ th [ class "total", colspan 3 ] [ text "Total de votre commande" ]
@@ -223,14 +243,14 @@ viewOrderTable model products =
         ]
 
 
-viewTableLine : Model -> Product -> Html Msg
-viewTableLine model product =
+viewTableLine : Model -> Delivery -> Product -> Html Msg
+viewTableLine model delivery product =
     let
         quantity =
             Maybe.withDefault 0 (model.currentOrder |> Dict.get product.id)
 
         price =
-            case model.products |> List.filter (\r -> r.id == product.id) |> List.head of
+            case delivery.products |> List.filter (\r -> r.id == product.id) |> List.head of
                 Just record ->
                     .price record
 

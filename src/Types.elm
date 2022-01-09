@@ -31,10 +31,10 @@ type alias Delivery =
     , handler_name : String
     , handler_email : String
     , handler_phone : String
+    , products : List Product
 
     -- , order_before : Time.Posix
     -- , expected_date : Maybe Time.Posix
-    -- , products : List Product
     -- , orders : List Order
     }
 

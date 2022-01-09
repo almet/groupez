@@ -2,7 +2,7 @@ module Api exposing (fetchDelivery)
 
 import Base64
 import Http
-import Json.Decode as Decode exposing (Decoder, float, int, string)
+import Json.Decode as Decode exposing (Decoder, float, int, list, string)
 import Json.Decode.Extra exposing (datetime)
 import Json.Decode.Pipeline exposing (hardcoded, optional, required)
 import Types exposing (..)
@@ -21,6 +21,16 @@ deliveryDecoder =
         |> required "handler_name" string
         |> required "handler_email" string
         |> required "handler_phone" string
+        |> required "products" (list productDecoder)
+
+
+productDecoder : Decoder Product
+productDecoder =
+    Decode.succeed Product
+        |> required "id" string
+        |> required "name" string
+        |> required "description" string
+        |> required "price" float
 
 
 fetchDelivery : Cmd Msg
