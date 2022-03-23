@@ -20,10 +20,11 @@ Une fois installés, (et les sources récupérées bien sur), vous pouvez lancer
 l'application avec la commande:
 
 ```bash
-elm-app start
+make
 ```
 
-Puis pointez votre navigateur web sur http://localhost:3000
+Cela devrait lancer un serveur en local et vous ouvrir une page web avec
+l'application.
 
 ## Philosophie de projet
 
