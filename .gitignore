@@ -1,5 +1,7 @@
 # Distribution
 build/
+fakeapi/venv/
+fakeapi/__pycache__
 
 # elm-package generated files
 elm-stuff

@@ -1,12 +1,15 @@
 module Main exposing (..)
 
 import Api exposing (..)
+import Bootstrap.CDN as CDN
+import Bootstrap.Grid as Grid
 import Browser
 import Browser.Navigation as Nav
 import Dict exposing (Dict)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onInput)
+import Http
 import String.Extra
 import Time
 import Time.Format
@@ -20,7 +23,7 @@ import Url
 
 
 type alias Model =
-    { delivery : Maybe Delivery -- The fetched delivery info.
+    { delivery : Result Http.Error Delivery -- The fetched delivery info.
     , currentOrder : DeliveryOrder -- Dict of ordered products quantitites.
     , orderPhoneNumber : String
     , orderEmail : String
@@ -32,17 +35,7 @@ type alias Model =
 
 init : () -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
 init flags url key =
-    ( { delivery =
-            Just
-                { status = "pending"
-                , delivery_name = "Commande chez Hervé"
-                , handler_name = "Alexis"
-                , handler_email = "alexis@notmyidea.org"
-                , handler_phone = "0701234567"
-                , products =
-                    [ { id = "vin-blanc", name = "Vin Blanc", description = "Youpi c'est bon !", price = 18 }
-                    ]
-                }
+    ( { delivery = Err (Http.BadBody "Initial State")
       , currentOrder = Dict.empty
       , orderName = ""
       , orderPhoneNumber = ""
@@ -87,10 +80,10 @@ update msg model =
             )
 
         GotDelivery (Ok delivery) ->
-            ( { model | delivery = Just delivery }, Cmd.none )
+            ( { model | delivery = Ok delivery }, Cmd.none )
 
         GotDelivery (Err err) ->
-            ( model, Cmd.none )
+            ( { model | delivery = Err err }, Cmd.none )
 
         NoOp ->
             ( model, Cmd.none )
@@ -122,24 +115,70 @@ viewLink path =
     li [] [ a [ href path ] [ text path ] ]
 
 
+formatDate : Time.Posix -> String
+formatDate date =
+    Time.Format.format config "%-d %B %Y" Time.utc date
+
+
+expectedDateView : Delivery -> Html msg
+expectedDateView delivery =
+    if Time.posixToMillis delivery.expected_date == 0 then
+        div [] []
+
+    else
+        div [ class "expected-date" ] [ "🤝 Récupération des commandes prévue le " ++ formatDate delivery.expected_date |> text ]
+
+
 placeOrderView : Model -> Html Msg
 placeOrderView model =
-    div [ class "container" ]
+    div [ class "section container" ]
         (case model.delivery of
-            Just delivery ->
+            Ok delivery ->
                 [ div []
-                    [ h1 [] [ text delivery.delivery_name ]
-                    , div [ class "date" ]
-                        [--"📅 Commandez avant le " ++ Time.Format.format config "%-d %B %Y" Time.utc delivery.orderBefore |> text
+                    [ div [ class "delivery-info" ]
+                        [ h1 [] [ text delivery.delivery_name ]
+                        , div [ class "order-before" ]
+                            [ "📅 Commandez avant le " ++ formatDate delivery.order_before |> text ]
                         ]
+                    , expectedDateView delivery
                     ]
                 , viewOrderTable model delivery model.currentOrder
+                , div [ class "delivery-handler" ]
+                    [ "Cette commande est gérée par " ++ delivery.handler_name ++ ". Vous pouvez le⋅a joindre" |> text
+                    , a [ title ("Joindre " ++ delivery.handler_name ++ " par email via " ++ delivery.handler_email), href ("mailto:" ++ delivery.handler_email) ] [ "par email 📨" |> text ]
+                    , a [ title ("Joindre " ++ delivery.handler_name ++ " par téléphone au " ++ delivery.handler_phone), href ("tel:" ++ delivery.handler_phone) ] [ "ou par téléphone 📞." |> text ]
+                    ]
                 , viewContactForm model
                 ]
 
-            Nothing ->
-                [ text "Récupération des infos en cours" ]
+            Err err ->
+                [ div [ class "error" ] [ errorToString err |> text ] ]
         )
+
+
+errorToString : Http.Error -> String
+errorToString error =
+    case error of
+        Http.BadUrl url ->
+            "L'URL " ++ url ++ " est invalide."
+
+        Http.Timeout ->
+            "Le serveur mets trop de temps à répondre à notre demande."
+
+        Http.NetworkError ->
+            "Impossible de joindre le serveur, êtes vous bien connecté⋅e à internet ? Si vous êtes bien connecté⋅e, il est possible que l'erreur soit due à un problème de paramètrage CORS."
+
+        Http.BadStatus 500 ->
+            "Le serveur rencontre des difficultés techniques (Erreur HTTP 500)."
+
+        Http.BadStatus 400 ->
+            "Le serveur à refusé la requête (Erreur HTTP 400)"
+
+        Http.BadStatus _ ->
+            "Une erreur HTTP est survenue, mais nous n'avons pas plus d'informations à vous fournir (Bad Status)"
+
+        Http.BadBody errorMessage ->
+            "Le serveur nous as envoyé des données mal-formées. " ++ errorMessage
 
 
 viewContactForm : Model -> Html Msg
@@ -165,7 +204,7 @@ viewContactForm model =
             []
         , case isOrderReady model of
             True ->
-                button [ class "button float-right" ] [ text "Envoyer la commande" ]
+                button [ class "button float-right" ] [ text "Enregistrer la commande" ]
 
             False ->
                 p [] []

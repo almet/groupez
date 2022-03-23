@@ -19,9 +19,11 @@
             "elm-community/json-extra": "4.3.0",
             "elm-community/list-extra": "8.3.0",
             "elm-community/string-extra": "4.0.1",
+            "rundis/elm-bootstrap": "5.2.0",
             "truqu/elm-base64": "2.0.4"
         },
         "indirect": {
+            "avh4/elm-color": "1.0.0",
             "elm/bytes": "1.0.8",
             "elm/file": "1.0.5",
             "elm/parser": "1.1.0",

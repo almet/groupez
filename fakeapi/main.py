@@ -36,14 +36,13 @@ app.add_middleware(
 def read_item(delivery_id: int):
     return {
         "status": "open",
-        "delivery_name": "Commande chez Hervé",
+        "delivery_name": "Brasserie du Vieux Singe",
         "handler_name" : "Alexis",
-        "handler_email": "alexis@notmyidea.org",
+        "handler_email": "alexis@vieuxsinge.com",
         "handler_phone": "0674785489",
-        "order_before": datetime(year=2021, month=12, day=1),
-        "expected_date": None,
+        "order_before": datetime(year=2022, month=5, day=1),
+        "expected_date": datetime(year=2022, month=6, day=16),
         "products": [
-
             {
                 "id" : "vent-se-leve-blanc",
                 "name": "Vent se lève Blanc",
@@ -56,6 +55,26 @@ def read_item(delivery_id: int):
                 "description": "Une description",
                 "price": 9,
             },
+        ],
+        "discounts": [
+            # 10% general discount when the total amount is greater than 500€.
+            {
+                "type": "general-discount",
+                "when": "amount-greater-than",
+                "treshold" : "500",
+                "discount": "0.1"
+            },
+
+            # Different prices depending on the ordered quantities (in units)
+            {
+                "type": "different-prices",
+                "when": "units-greater-than",
+                "treshold": "120",
+                "prices": {
+                    "vent-se-leve-blanc": 10,
+                    "vin-rouge": 8
+                }
+            }
         ],
         "orders": {}
     }

@@ -5,6 +5,7 @@ import Http
 import Json.Decode as Decode exposing (Decoder, float, int, list, string)
 import Json.Decode.Extra exposing (datetime)
 import Json.Decode.Pipeline exposing (hardcoded, optional, required)
+import Time exposing (millisToPosix)
 import Types exposing (..)
 
 
@@ -21,6 +22,8 @@ deliveryDecoder =
         |> required "handler_name" string
         |> required "handler_email" string
         |> required "handler_phone" string
+        |> required "order_before" datetime
+        |> optional "expected_date" datetime (millisToPosix 0)
         |> required "products" (list productDecoder)
 
 
@@ -42,5 +45,4 @@ fetchDelivery =
 
 
 
--- |> required "order_before" datetime
 -- |> optional "expected_date" (Just datetime) Nothing

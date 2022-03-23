@@ -1,7 +1,7 @@
 # Groupez
 
-« Groupez » cherche à faciliter les commandes groupées, en proposant une
-interface simple et concise.
+« Groupez » cherche à faciliter les commandes groupées ponctuelles, en proposant
+une interface claire et simple.
 
 **Attention : ceci est un travail en cours**, et donc n'est pas utilisable en l'état.
 
@@ -34,4 +34,4 @@ cas spécifiques. Le logiciel à peu de fonctionnalités, par *design*.
   par exemple gérée via un tableur, qui fait déjà bien ce travail ;
 - Avoir une interface claire, avec peu de choix, qui va à l'essentiel ;
 - Avoir un code simple et concis pour faciliter la maintenance. Le choix du
-langage Elm est fait dans l'optique de réduire le coût de maintenance. 
+langage Elm est fait dans l'optique de réduire le coût de maintenance.
