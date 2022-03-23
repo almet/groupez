@@ -92,7 +92,20 @@ def read_item(delivery_id: int):
             #     }
             # }
         ],
-        "orders": {}
+        "orders": [{
+
+                "meta" {
+                    "phone_number": "0674785489"
+                    , "email": "alexis@notmyidea.org"
+                    , "last_update": datetime(year=2022, month=3, day=23, hour=23, minute=59),
+                },
+                "quantities": {
+                    "ST75": 10
+                    ,"NM75": 10
+                }
+            }
+            ]
+        }
     }
 
 @app.get("/items/{item_id}")

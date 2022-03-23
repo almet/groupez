@@ -213,7 +213,7 @@ viewContactForm model =
                 button [ class "button float-right" ] [ text "Enregistrer la commande" ]
 
             False ->
-                p [] []
+                p [ class "float-right" ] [ text "🤔 Votre commande n'est pas encore enregistréé, renseignez votre nom et les moyens de vous contacter, vous pourrez valider ensuite." ]
         ]
 
 
