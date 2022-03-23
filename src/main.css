@@ -184,3 +184,13 @@ img {
 .delivery-handler > a {
   margin-left: 0.5em;
 }
+
+.discounts {
+  border: 2px black dotted;
+  padding: 1em;
+  margin-top: 1em;
+}
+
+.discounts p {
+  margin-bottom: 0;
+}

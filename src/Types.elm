@@ -2,6 +2,7 @@ module Types exposing
     ( Authentication(..)
     , Delivery
     , DeliveryOrder
+    , Discount
     , Msg(..)
     , Product
     )
@@ -34,10 +35,15 @@ type alias Delivery =
     , order_before : Time.Posix
     , expected_date : Time.Posix
     , products : List Product
+    , discounts : List Discount
 
-    --
-    -- , expected_date : Maybe Time.Posix
     -- , orders : List Order
+    }
+
+
+type alias Discount =
+    { treshold : Float
+    , percentage : Float
     }
 
 

@@ -44,37 +44,53 @@ def read_item(delivery_id: int):
         "expected_date": datetime(year=2022, month=6, day=16),
         "products": [
             {
-                "id" : "vent-se-leve-blanc",
-                "name": "Vent se lève Blanc",
-                "description": "100% Macabeu,  Nez fruité, fruits blancs. Arômes : Fraicheur, Anis, Finale fumée",
-                "price": 12.3,
+                "id" : "ST75",
+                "name": "Souffle Tropical 75cl",
+                "description": "American Wheat Citra / Mosaic. Bière de blé assez légère et fruitée, notes de fruits exotiques. 4,5°alc",
+                "price": 5,
             },
             {
-                "id" : "vin-rouge",
-                "name": "Vin Rouge",
-                "description": "Une description",
-                "price": 9,
+                "id" : "NM75",
+                "name": "Nouveau Monde 75cl",
+                "description": "American Pale Ale Chinook / Cascade. Amertume marquée, plutôt sur l'agrume. 5°alc",
+                "price": 5,
+            },
+            {
+                "id" : "EPT75",
+                "name": "En Pleine Tempête 75cl",
+                "description": "London Bitter, assez légère, notes de pain grillé. 5°alc",
+                "price": 5,
+            },
+            {
+                "id" : "EQD75",
+                "name": "L'Eau Qui Dort 75cl",
+                "description": "Stout à la vanille / Bière noire sur des aromes de torréfaction (Café / Cacao) avec du sucre résiduel et de la vanille. 6°alc",
+                "price": 6,
             },
         ],
         "discounts": [
             # 10% general discount when the total amount is greater than 500€.
             {
                 "type": "general-discount",
-                "when": "amount-greater-than",
-                "treshold" : "500",
-                "discount": "0.1"
-            },
-
-            # Different prices depending on the ordered quantities (in units)
-            {
-                "type": "different-prices",
-                "when": "units-greater-than",
-                "treshold": "120",
-                "prices": {
-                    "vent-se-leve-blanc": 10,
-                    "vin-rouge": 8
+                "rules": {
+                    "when": "amount-greater-than",
+                    "treshold" : "240",
+                    "percentage": "10"
                 }
             }
+
+            # Different prices depending on the ordered quantities (in units)
+            # ,{
+            #     "type": "different-prices",
+            #     "when": "units-greater-than",
+            #     "treshold": "60",
+            #     "prices": {
+            #         "ST75": 4,
+            #         "NM75": 4,
+            #         "EPT75": 4,
+            #         "EQD75": 5
+            #     }
+            # }
         ],
         "orders": {}
     }

@@ -115,20 +115,6 @@ viewLink path =
     li [] [ a [ href path ] [ text path ] ]
 
 
-formatDate : Time.Posix -> String
-formatDate date =
-    Time.Format.format config "%-d %B %Y" Time.utc date
-
-
-expectedDateView : Delivery -> Html msg
-expectedDateView delivery =
-    if Time.posixToMillis delivery.expected_date == 0 then
-        div [] []
-
-    else
-        div [ class "expected-date" ] [ "🤝 Récupération des commandes prévue le " ++ formatDate delivery.expected_date |> text ]
-
-
 placeOrderView : Model -> Html Msg
 placeOrderView model =
     div [ class "section container" ]
@@ -138,10 +124,11 @@ placeOrderView model =
                     [ div [ class "delivery-info" ]
                         [ h1 [] [ text delivery.delivery_name ]
                         , div [ class "order-before" ]
-                            [ "📅 Commandez avant le " ++ formatDate delivery.order_before |> text ]
+                            [ "⏳ Commandez avant le " ++ formatDate delivery.order_before |> text ]
                         ]
                     , expectedDateView delivery
                     ]
+                , div [ class "discounts" ] (List.map viewDiscount delivery.discounts)
                 , viewOrderTable model delivery model.currentOrder
                 , div [ class "delivery-handler" ]
                     [ "Cette commande est gérée par " ++ delivery.handler_name ++ ". Vous pouvez le⋅a joindre" |> text
@@ -154,6 +141,25 @@ placeOrderView model =
             Err err ->
                 [ div [ class "error" ] [ errorToString err |> text ] ]
         )
+
+
+viewDiscount : Discount -> Html msg
+viewDiscount discount =
+    p [] [ "💡 Réduction de " ++ (discount.percentage |> String.fromFloat) ++ "% à partir de " ++ (discount.treshold |> String.fromFloat) ++ "€ de commande" |> text ]
+
+
+formatDate : Time.Posix -> String
+formatDate date =
+    Time.Format.format config "%-d %B %Y" Time.utc date
+
+
+expectedDateView : Delivery -> Html msg
+expectedDateView delivery =
+    if Time.posixToMillis delivery.expected_date == 0 then
+        div [] []
+
+    else
+        div [ class "expected-date" ] [ "📅 Récupération des commandes prévue le " ++ formatDate delivery.expected_date |> text ]
 
 
 errorToString : Http.Error -> String
