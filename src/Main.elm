@@ -24,10 +24,7 @@ import Url
 
 type alias Model =
     { delivery : Result Http.Error Delivery -- The fetched delivery info.
-    , currentOrder : OrderQuantities -- Dict of ordered products quantitites.
-    , orderPhoneNumber : String
-    , orderEmail : String
-    , orderName : String
+    , currentOrder : DeliveryOrder
     , key : Nav.Key
     , url : Url.Url
     }
@@ -36,10 +33,7 @@ type alias Model =
 init : () -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
 init flags url key =
     ( { delivery = Err (Http.BadBody "Initial State")
-      , currentOrder = Dict.empty
-      , orderName = ""
-      , orderPhoneNumber = ""
-      , orderEmail = ""
+      , currentOrder = DeliveryOrder "" "" "" Dict.empty
       , key = key
       , url = url
       }
@@ -55,16 +49,32 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         UpdateOrderQuantity productId quantity ->
-            ( { model | currentOrder = Dict.update productId (\_ -> String.toInt quantity) model.currentOrder }, Cmd.none )
+            let
+                updateOrderQuantity order =
+                    { order | quantities = Dict.update productId (\_ -> String.toInt quantity) model.currentOrder.quantities }
+            in
+            ( { model | currentOrder = updateOrderQuantity model.currentOrder }, Cmd.none )
 
         UpdateOrderName name ->
-            ( { model | orderName = name }, Cmd.none )
+            let
+                updateName order =
+                    { order | name = name }
+            in
+            ( { model | currentOrder = updateName model.currentOrder }, Cmd.none )
 
         UpdateOrderPhoneNumber phoneNumber ->
-            ( { model | orderPhoneNumber = phoneNumber |> String.filter Char.isDigit |> String.Extra.wrapWith 2 " " }, Cmd.none )
+            let
+                updatePhoneNumber order =
+                    { order | phone_number = phoneNumber |> String.filter Char.isDigit |> String.Extra.wrapWith 2 " " }
+            in
+            ( { model | currentOrder = updatePhoneNumber model.currentOrder }, Cmd.none )
 
         UpdateOrderEmail email ->
-            ( { model | orderEmail = email }, Cmd.none )
+            let
+                updateEmail order =
+                    { order | email = email }
+            in
+            ( { model | currentOrder = updateEmail model.currentOrder }, Cmd.none )
 
         LinkClicked urlRequest ->
             case urlRequest of
@@ -193,22 +203,22 @@ viewContactForm model =
         [ input
             [ placeholder "Votre nom ?"
             , onInput UpdateOrderName
-            , value model.orderName
+            , value model.currentOrder.name
             ]
             []
         , input
             [ placeholder "Entrez un email"
             , onInput UpdateOrderEmail
-            , value model.orderEmail
+            , value model.currentOrder.email
             ]
             []
         , input
             [ placeholder "Entrez un numéro de téléphone"
             , onInput UpdateOrderPhoneNumber
-            , value model.orderPhoneNumber
+            , value model.currentOrder.phone_number
             ]
             []
-        , case isOrderReady model of
+        , case isOrderReady model.currentOrder of
             True ->
                 button [ class "button float-right" ] [ text "Enregistrer la commande" ]
 
@@ -223,14 +233,14 @@ viewContactForm model =
 -- - a phone number is set and complete;
 
 
-isOrderReady : Model -> Bool
-isOrderReady model =
+isOrderReady : DeliveryOrder -> Bool
+isOrderReady order =
     if
-        model.orderName
+        order.name
             /= ""
-            && model.orderPhoneNumber
+            && order.phone_number
             /= ""
-            && (model.orderPhoneNumber |> String.replace " " "" |> String.length)
+            && (order.phone_number |> String.replace " " "" |> String.length)
             >= 10
     then
         True
@@ -257,11 +267,11 @@ getOrderTotalAmout products order =
     Dict.foldl accu 0 order
 
 
-viewOrderTable : Model -> Delivery -> OrderQuantities -> Html Msg
+viewOrderTable : Model -> Delivery -> DeliveryOrder -> Html Msg
 viewOrderTable model delivery currentOrder =
     let
         total =
-            case getOrderTotalAmout delivery.products currentOrder |> String.fromFloat of
+            case getOrderTotalAmout delivery.products currentOrder.quantities |> String.fromFloat of
                 "0" ->
                     ""
 
@@ -292,7 +302,7 @@ viewTableLine : Model -> Delivery -> Product -> Html Msg
 viewTableLine model delivery product =
     let
         quantity =
-            Maybe.withDefault 0 (model.currentOrder |> Dict.get product.id)
+            Maybe.withDefault 0 (model.currentOrder.quantities |> Dict.get product.id)
 
         price =
             case delivery.products |> List.filter (\r -> r.id == product.id) |> List.head of

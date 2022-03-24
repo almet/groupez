@@ -94,8 +94,9 @@ def read_item(delivery_id: int):
         ],
         "orders": [
             {
+                "name": "Fred",
                 "phone_number": "0612345678",
-                "email": "alexis@example.org",
+                "email": "fred@example.org",
                 "quantities": {"ST75": 10, "NM75": 10},
             }
         ],

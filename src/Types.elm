@@ -15,10 +15,6 @@ import Time
 import Url
 
 
-type alias OrderQuantities =
-    Dict String Int
-
-
 type alias Product =
     { id : String
     , name : String
@@ -42,10 +38,15 @@ type alias Delivery =
 
 
 type alias DeliveryOrder =
-    { phone_number : String
+    { name : String
+    , phone_number : String
     , email : String
     , quantities : OrderQuantities
     }
+
+
+type alias OrderQuantities =
+    Dict String Int
 
 
 type alias Discount =

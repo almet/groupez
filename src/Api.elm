@@ -48,6 +48,7 @@ discountDecoder =
 orderDecoder : Decoder DeliveryOrder
 orderDecoder =
     Decode.succeed DeliveryOrder
+        |> required "name" string
         |> required "phone_number" string
         |> required "email" string
         |> required "quantities" (dict int)
