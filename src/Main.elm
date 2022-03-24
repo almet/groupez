@@ -24,7 +24,7 @@ import Url
 
 type alias Model =
     { delivery : Result Http.Error Delivery -- The fetched delivery info.
-    , currentOrder : DeliveryOrder -- Dict of ordered products quantitites.
+    , currentOrder : OrderQuantities -- Dict of ordered products quantitites.
     , orderPhoneNumber : String
     , orderEmail : String
     , orderName : String
@@ -239,7 +239,7 @@ isOrderReady model =
         False
 
 
-getOrderTotalAmout : List Product -> DeliveryOrder -> Float
+getOrderTotalAmout : List Product -> OrderQuantities -> Float
 getOrderTotalAmout products order =
     let
         accu id quantity total =
@@ -257,7 +257,7 @@ getOrderTotalAmout products order =
     Dict.foldl accu 0 order
 
 
-viewOrderTable : Model -> Delivery -> DeliveryOrder -> Html Msg
+viewOrderTable : Model -> Delivery -> OrderQuantities -> Html Msg
 viewOrderTable model delivery currentOrder =
     let
         total =

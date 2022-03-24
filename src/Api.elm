@@ -2,7 +2,7 @@ module Api exposing (fetchDelivery)
 
 import Base64
 import Http
-import Json.Decode as Decode exposing (Decoder, float, int, list, string)
+import Json.Decode as Decode exposing (Decoder, dict, float, int, list, string)
 import Json.Decode.Extra exposing (datetime, parseFloat)
 import Json.Decode.Pipeline exposing (hardcoded, optional, required, requiredAt)
 import Time exposing (millisToPosix)
@@ -26,6 +26,7 @@ deliveryDecoder =
         |> optional "expected_date" datetime (millisToPosix 0)
         |> required "products" (list productDecoder)
         |> required "discounts" (list discountDecoder)
+        |> required "orders" (list orderDecoder)
 
 
 productDecoder : Decoder Product
@@ -42,6 +43,14 @@ discountDecoder =
     Decode.succeed Discount
         |> requiredAt [ "rules", "treshold" ] parseFloat
         |> requiredAt [ "rules", "percentage" ] parseFloat
+
+
+orderDecoder : Decoder DeliveryOrder
+orderDecoder =
+    Decode.succeed DeliveryOrder
+        |> required "phone_number" string
+        |> required "email" string
+        |> required "quantities" (dict int)
 
 
 fetchDelivery : Cmd Msg

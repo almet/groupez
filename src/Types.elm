@@ -4,6 +4,7 @@ module Types exposing
     , DeliveryOrder
     , Discount
     , Msg(..)
+    , OrderQuantities
     , Product
     )
 
@@ -14,7 +15,7 @@ import Time
 import Url
 
 
-type alias DeliveryOrder =
+type alias OrderQuantities =
     Dict String Int
 
 
@@ -36,8 +37,14 @@ type alias Delivery =
     , expected_date : Time.Posix
     , products : List Product
     , discounts : List Discount
+    , orders : List DeliveryOrder
+    }
 
-    -- , orders : List Order
+
+type alias DeliveryOrder =
+    { phone_number : String
+    , email : String
+    , quantities : OrderQuantities
     }
 
 

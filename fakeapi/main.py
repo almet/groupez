@@ -32,37 +32,38 @@ app.add_middleware(
 # - products [(id, name, description, price), …]
 # - discounts ?
 
+
 @app.get("/delivery/{delivery_id}")
 def read_item(delivery_id: int):
     return {
         "status": "open",
         "delivery_name": "Brasserie du Vieux Singe",
-        "handler_name" : "Alexis",
-        "handler_email": "alexis@vieuxsinge.com",
-        "handler_phone": "0674785489",
+        "handler_name": "Alexis",
+        "handler_email": "alexis@example.org",
+        "handler_phone": "0612345678",
         "order_before": datetime(year=2022, month=5, day=1),
         "expected_date": datetime(year=2022, month=6, day=16),
         "products": [
             {
-                "id" : "ST75",
+                "id": "ST75",
                 "name": "Souffle Tropical 75cl",
                 "description": "American Wheat Citra / Mosaic. Bière de blé assez légère et fruitée, notes de fruits exotiques. 4,5°alc",
                 "price": 5,
             },
             {
-                "id" : "NM75",
+                "id": "NM75",
                 "name": "Nouveau Monde 75cl",
                 "description": "American Pale Ale Chinook / Cascade. Amertume marquée, plutôt sur l'agrume. 5°alc",
                 "price": 5,
             },
             {
-                "id" : "EPT75",
+                "id": "EPT75",
                 "name": "En Pleine Tempête 75cl",
                 "description": "London Bitter, assez légère, notes de pain grillé. 5°alc",
                 "price": 5,
             },
             {
-                "id" : "EQD75",
+                "id": "EQD75",
                 "name": "L'Eau Qui Dort 75cl",
                 "description": "Stout à la vanille / Bière noire sur des aromes de torréfaction (Café / Cacao) avec du sucre résiduel et de la vanille. 6°alc",
                 "price": 6,
@@ -74,11 +75,10 @@ def read_item(delivery_id: int):
                 "type": "general-discount",
                 "rules": {
                     "when": "amount-greater-than",
-                    "treshold" : "240",
-                    "percentage": "10"
-                }
+                    "treshold": "240",
+                    "percentage": "10",
+                },
             }
-
             # Different prices depending on the ordered quantities (in units)
             # ,{
             #     "type": "different-prices",
@@ -92,25 +92,20 @@ def read_item(delivery_id: int):
             #     }
             # }
         ],
-        "orders": [{
-
-                "meta" {
-                    "phone_number": "0674785489"
-                    , "email": "alexis@notmyidea.org"
-                    , "last_update": datetime(year=2022, month=3, day=23, hour=23, minute=59),
-                },
-                "quantities": {
-                    "ST75": 10
-                    ,"NM75": 10
-                }
+        "orders": [
+            {
+                "phone_number": "0612345678",
+                "email": "alexis@example.org",
+                "quantities": {"ST75": 10, "NM75": 10},
             }
-            ]
-        }
+        ],
     }
+
 
 @app.get("/items/{item_id}")
 def read_item(item_id: int, q: Optional[str] = None):
     return {"item_id": item_id, "q": q}
+
 
 # 2. Orders : An orer, placed by an entity (individual or group)
 # - name
@@ -118,9 +113,11 @@ def read_item(item_id: int, q: Optional[str] = None):
 # - email
 # - ordered_products {product_id : quantity, …}
 
+
 @app.get("/")
 def read_root():
     return {"Hello": "World"}
+
 
 #
 # This should be :
