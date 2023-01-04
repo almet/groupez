@@ -75,7 +75,7 @@ def read_item(delivery_id: int):
                 "type": "general-discount",
                 "rules": {
                     "when": "amount-greater-than",
-                    "treshold": "240",
+                    "threshold": "240",
                     "percentage": "10",
                 },
             }
@@ -83,7 +83,7 @@ def read_item(delivery_id: int):
             # ,{
             #     "type": "different-prices",
             #     "when": "units-greater-than",
-            #     "treshold": "60",
+            #     "threshold": "60",
             #     "prices": {
             #         "ST75": 4,
             #         "NM75": 4,

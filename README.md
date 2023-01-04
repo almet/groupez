@@ -35,4 +35,32 @@ cas spécifiques. Le logiciel à peu de fonctionnalités, par *design*.
   par exemple gérée via un tableur, qui fait déjà bien ce travail ;
 - Avoir une interface claire, avec peu de choix, qui va à l'essentiel ;
 - Avoir un code simple et concis pour faciliter la maintenance. Le choix du
-langage Elm est fait dans l'optique de réduire le coût de maintenance.
+langage Elm est fait dans l'optique de réduire la maintenance.
+
+## Flux d'utilisation
+
+J'imagine le flow comme ça :
+
+### Gestionnaire de distribution
+
+Je veux créer une distribution pour des ami⋅es, j'ai une interface assez simple d'accès qui me permet de créer les produits et règles.
+
+1. Je me connecte sur groupez, on me propose de crééer une nouvelle distribution
+2. Sur la page de création de la distribution, je précise les conditions, ainsi que les produits.
+3. Je reçois par email un lien d'administration ainsi qu'un lien à fournir aux utilisateur⋅ices
+
+- Quand un bénéficiaire fait une commande, je suis notifié
+- Lorsque la date de commande approche (durée à préciser) les bénéficiaires qui n'ont pas passé de commande peuvent être relancés automatiquement
+
+- Je peux éditer la commande d'un autre bénéficiaire
+- Je peux accéder simplement aux sommes à donner au producteur.
+- Je peux prévenir tout le monde que c'est bien reçu en cliquant sur un bouton.
+- Je peux suivre l'état des paiements
+
+### Bénéficiaire
+
+Je reçois un lien de la part d'un ami, lorsque je clique dessus je peux spécifier une commande, qui sera enregistrée pour le gestionnaire.s
+
+- Ajouter un texte « infos » pour préciser par exemple que ce sont des cartons de 12 bouteilles.
+- Je peux éditer ma commande
+- Je suis prévenu quand la commande à été récupérée par le gestionnaire

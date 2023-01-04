@@ -1,20 +1,23 @@
 module Main exposing (..)
 
-import Api exposing (..)
-import Bootstrap.CDN as CDN
-import Bootstrap.Grid as Grid
 import Browser
 import Browser.Navigation as Nav
-import Dict exposing (Dict)
+import Data.Delivery exposing (Delivery)
+import Data.Discount exposing (Discount)
+import Data.Model exposing (Model)
+import Data.Msg exposing (Msg(..))
+import Data.Order exposing (Order, OrderQuantities)
+import Data.Product exposing (Product)
+import Dict
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onInput)
 import Http
+import Request.Delivery as Delivery
 import String.Extra
 import Time
 import Time.Format
 import Time.Format.Config.Config_fr_fr exposing (config)
-import Types exposing (..)
 import Url
 
 
@@ -24,20 +27,33 @@ import Url
 
 type alias Model =
     { delivery : Result Http.Error Delivery -- The fetched delivery info.
-    , currentOrder : DeliveryOrder
+    , currentOrder : Order
+    , currentDelivery : Delivery
     , key : Nav.Key
     , url : Url.Url
     }
 
 
 init : () -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
-init flags url key =
+init _ url key =
     ( { delivery = Err (Http.BadBody "Initial State")
-      , currentOrder = DeliveryOrder "" "" "" Dict.empty
+      , currentOrder = Order "" "" "" Dict.empty
+      , currentDelivery =
+            { status = ""
+            , delivery_name = ""
+            , handler_name = ""
+            , handler_email = ""
+            , handler_phone = ""
+            , order_before = Time.millisToPosix 0
+            , expected_date = Time.millisToPosix 0
+            , products = []
+            , discounts = []
+            , orders = []
+            }
       , key = key
       , url = url
       }
-    , Api.fetchDelivery
+    , Delivery.fetch
     )
 
 
@@ -95,9 +111,6 @@ update msg model =
         GotDelivery (Err err) ->
             ( { model | delivery = Err err }, Cmd.none )
 
-        NoOp ->
-            ( model, Cmd.none )
-
 
 
 ---- VIEW ----
@@ -109,12 +122,15 @@ view model =
         "/commander" ->
             { title = "Commander", body = [ placeOrderView model ] }
 
+        -- "/créer" ->
+        --     { title = "Créer une nouvelle distribution", body = [ createDeliveryView model ] }
         _ ->
             { title = "Groupez !"
             , body =
                 [ ul []
                     [ viewLink "/commander"
                     , viewLink "/ "
+                    , viewLink "/créer"
                     ]
                 ]
             }
@@ -125,8 +141,37 @@ viewLink path =
     li [] [ a [ href path ] [ text path ] ]
 
 
+
+-- createDeliveryView : Model -> Html Msg
+-- createDeliveryView model =
+--     div [ class "section container" ]
+--         [ div []
+--             [ div [ class "delivery-info" ]
+--                 [ [ input
+--                         [ placeholder "Entrez un nom pour cette commande"
+--                         , class ""
+--
+--                         --, onInput UpdateDeliveryName
+--                         , value model.currentDelivery.name
+--                         ]
+--                         []
+--                   ]
+--                 ]
+--             ]
+--         ]
+
+
 placeOrderView : Model -> Html Msg
 placeOrderView model =
+    let
+        numberOfOrders =
+            case model.delivery of
+                Ok delivery ->
+                    delivery.orders |> List.length
+
+                Err _ ->
+                    0
+    in
     div [ class "section container" ]
         (case model.delivery of
             Ok delivery ->
@@ -135,6 +180,15 @@ placeOrderView model =
                         [ h1 [] [ text delivery.delivery_name ]
                         , div [ class "order-before" ]
                             [ "⏳ Commandez avant le " ++ formatDate delivery.order_before |> text ]
+                        , case numberOfOrders of
+                            0 ->
+                                p [] []
+
+                            1 ->
+                                div [] [ "🤓 " ++ "Une commande déjà enregistrée" |> text ]
+
+                            _ ->
+                                div [] [ "🤓 " ++ (numberOfOrders |> String.fromInt) ++ " commandes déjà enregistrées" |> text ]
                         ]
                     , expectedDateView delivery
                     ]
@@ -155,7 +209,7 @@ placeOrderView model =
 
 viewDiscount : Discount -> Html msg
 viewDiscount discount =
-    p [] [ "💡 Réduction de " ++ (discount.percentage |> String.fromFloat) ++ "% à partir de " ++ (discount.treshold |> String.fromFloat) ++ "€ de commande" |> text ]
+    p [] [ "💡 Réduction de " ++ (discount.percentage |> String.fromFloat) ++ "% à partir de " ++ (discount.threshold |> String.fromFloat) ++ "€ de commande" |> text ]
 
 
 formatDate : Time.Posix -> String
@@ -218,12 +272,11 @@ viewContactForm model =
             , value model.currentOrder.phone_number
             ]
             []
-        , case isOrderReady model.currentOrder of
-            True ->
-                button [ class "button float-right" ] [ text "Enregistrer la commande" ]
+        , if isOrderReady model.currentOrder then
+            button [ class "button float-right" ] [ text "Enregistrer la commande" ]
 
-            False ->
-                p [ class "float-right" ] [ text "🤔 Votre commande n'est pas encore enregistréé, renseignez votre nom et les moyens de vous contacter, vous pourrez valider ensuite." ]
+          else
+            p [ class "float-right" ] [ text "🤔 Votre commande n'est pas encore enregistréé, renseignez votre nom et les moyens de vous contacter, vous pourrez valider ensuite." ]
         ]
 
 
@@ -233,7 +286,7 @@ viewContactForm model =
 -- - a phone number is set and complete;
 
 
-isOrderReady : DeliveryOrder -> Bool
+isOrderReady : Order -> Bool
 isOrderReady order =
     if
         order.name
@@ -267,7 +320,7 @@ getOrderTotalAmout products order =
     Dict.foldl accu 0 order
 
 
-viewOrderTable : Model -> Delivery -> DeliveryOrder -> Html Msg
+viewOrderTable : Model -> Delivery -> Order -> Html Msg
 viewOrderTable model delivery currentOrder =
     let
         total =
