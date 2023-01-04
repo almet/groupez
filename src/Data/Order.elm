@@ -1,4 +1,4 @@
-module Data.Order exposing (Order, OrderQuantities, decode)
+module Data.Order exposing (Order, OrderQuantities, decode, empty)
 
 import Dict exposing (Dict)
 import Json.Decode as Decode exposing (Decoder, dict, int, string)
@@ -15,6 +15,11 @@ type alias Order =
 
 type alias OrderQuantities =
     Dict String Int
+
+
+empty : Order
+empty =
+    Order "" "" "" Dict.empty
 
 
 decode : Decoder Order

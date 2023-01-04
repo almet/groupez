@@ -1,16 +1,22 @@
-module Data.Model exposing (Model)
+module Data.Model exposing (Model, empty)
 
-import Browser.Navigation as Nav
-import Data.Delivery exposing (Delivery)
-import Data.Order exposing (Order)
-import Http
-import Url
+import Data.Delivery as Delivery exposing (Delivery)
+import Data.Navigation exposing (Navigation)
+import Data.Order as Order exposing (Order)
 
 
 type alias Model =
-    { delivery : Result Http.Error Delivery -- The fetched delivery info.
-    , currentOrder : Order
+    { currentOrder : Order
     , currentDelivery : Delivery
-    , key : Nav.Key
-    , url : Url.Url
+    , navigation : Navigation
+    , errorMessage : Maybe String
+    }
+
+
+empty : Navigation -> Model
+empty nav =
+    { currentOrder = Order.empty
+    , currentDelivery = Delivery.empty
+    , errorMessage = Nothing
+    , navigation = nav
     }

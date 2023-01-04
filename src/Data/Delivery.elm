@@ -1,4 +1,4 @@
-module Data.Delivery exposing (Delivery, decode)
+module Data.Delivery exposing (Delivery, decode, empty)
 
 import Data.Discount as Discount exposing (Discount)
 import Data.Order as Order exposing (Order)
@@ -20,6 +20,21 @@ type alias Delivery =
     , products : List Product
     , discounts : List Discount
     , orders : List Order
+    }
+
+
+empty : Delivery
+empty =
+    { status = ""
+    , delivery_name = ""
+    , handler_name = ""
+    , handler_email = ""
+    , handler_phone = ""
+    , order_before = Time.millisToPosix 0
+    , expected_date = Time.millisToPosix 0
+    , products = []
+    , discounts = []
+    , orders = []
     }
 
 

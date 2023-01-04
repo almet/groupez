@@ -2,17 +2,18 @@ module Main exposing (..)
 
 import Browser
 import Browser.Navigation as Nav
-import Data.Delivery exposing (Delivery)
+import Data.Delivery as Delivery exposing (Delivery)
 import Data.Discount exposing (Discount)
-import Data.Model exposing (Model)
+import Data.Model as Model exposing (Model)
 import Data.Msg exposing (Msg(..))
+import Data.Navigation exposing (Navigation)
 import Data.Order exposing (Order, OrderQuantities)
 import Data.Product exposing (Product)
 import Dict
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onInput)
-import Http
+import Request.Client as Client
 import Request.Delivery as Delivery
 import String.Extra
 import Time
@@ -25,34 +26,9 @@ import Url
 ---- MODEL ----
 
 
-type alias Model =
-    { delivery : Result Http.Error Delivery -- The fetched delivery info.
-    , currentOrder : Order
-    , currentDelivery : Delivery
-    , key : Nav.Key
-    , url : Url.Url
-    }
-
-
 init : () -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
 init _ url key =
-    ( { delivery = Err (Http.BadBody "Initial State")
-      , currentOrder = Order "" "" "" Dict.empty
-      , currentDelivery =
-            { status = ""
-            , delivery_name = ""
-            , handler_name = ""
-            , handler_email = ""
-            , handler_phone = ""
-            , order_before = Time.millisToPosix 0
-            , expected_date = Time.millisToPosix 0
-            , products = []
-            , discounts = []
-            , orders = []
-            }
-      , key = key
-      , url = url
-      }
+    ( Navigation key url |> Model.empty
     , Delivery.fetch
     )
 
@@ -62,7 +38,7 @@ init _ url key =
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
+update msg ({ navigation } as model) =
     case msg of
         UpdateOrderQuantity productId quantity ->
             let
@@ -95,21 +71,31 @@ update msg model =
         LinkClicked urlRequest ->
             case urlRequest of
                 Browser.Internal url ->
-                    ( model, Nav.pushUrl model.key (Url.toString url) )
+                    ( model, Nav.pushUrl model.navigation.key (Url.toString url) )
 
                 Browser.External href ->
                     ( model, Nav.load href )
 
         UrlChanged url ->
-            ( { model | url = url }
+            ( { model | navigation = { navigation | url = url } }
             , Cmd.none
             )
 
         GotDelivery (Ok delivery) ->
-            ( { model | delivery = Ok delivery }, Cmd.none )
+            ( { model
+                | currentDelivery = delivery
+                , errorMessage = Nothing
+              }
+            , Cmd.none
+            )
 
         GotDelivery (Err err) ->
-            ( { model | delivery = Err err }, Cmd.none )
+            ( { model
+                | currentDelivery = Delivery.empty
+                , errorMessage = Client.errorToString err |> Just
+              }
+            , Cmd.none
+            )
 
 
 
@@ -117,8 +103,8 @@ update msg model =
 
 
 view : Model -> Browser.Document Msg
-view model =
-    case model.url.path of
+view ({ navigation } as model) =
+    case navigation.url.path of
         "/commander" ->
             { title = "Commander", body = [ placeOrderView model ] }
 
@@ -164,17 +150,22 @@ viewLink path =
 placeOrderView : Model -> Html Msg
 placeOrderView model =
     let
-        numberOfOrders =
-            case model.delivery of
-                Ok delivery ->
-                    delivery.orders |> List.length
+        isLoaded =
+            model.currentDelivery /= Delivery.empty
 
-                Err _ ->
-                    0
+        delivery =
+            model.currentDelivery
+
+        numberOfOrders =
+            if isLoaded then
+                model.currentDelivery.orders |> List.length
+
+            else
+                0
     in
     div [ class "section container" ]
-        (case model.delivery of
-            Ok delivery ->
+        (case model.errorMessage of
+            Nothing ->
                 [ div []
                     [ div [ class "delivery-info" ]
                         [ h1 [] [ text delivery.delivery_name ]
@@ -202,8 +193,8 @@ placeOrderView model =
                 , viewContactForm model
                 ]
 
-            Err err ->
-                [ div [ class "error" ] [ errorToString err |> text ] ]
+            Just errorMessage ->
+                [ div [ class "error" ] [ text errorMessage ] ]
         )
 
 
@@ -224,31 +215,6 @@ expectedDateView delivery =
 
     else
         div [ class "expected-date" ] [ "📅 Récupération des commandes prévue le " ++ formatDate delivery.expected_date |> text ]
-
-
-errorToString : Http.Error -> String
-errorToString error =
-    case error of
-        Http.BadUrl url ->
-            "L'URL " ++ url ++ " est invalide."
-
-        Http.Timeout ->
-            "Le serveur mets trop de temps à répondre à notre demande."
-
-        Http.NetworkError ->
-            "Impossible de joindre le serveur, êtes vous bien connecté⋅e à internet ? Si vous êtes bien connecté⋅e, il est possible que l'erreur soit due à un problème de paramètrage CORS."
-
-        Http.BadStatus 500 ->
-            "Le serveur rencontre des difficultés techniques (Erreur HTTP 500)."
-
-        Http.BadStatus 400 ->
-            "Le serveur à refusé la requête (Erreur HTTP 400)"
-
-        Http.BadStatus _ ->
-            "Une erreur HTTP est survenue, mais nous n'avons pas plus d'informations à vous fournir (Bad Status)"
-
-        Http.BadBody errorMessage ->
-            "Le serveur nous as envoyé des données mal-formées. " ++ errorMessage
 
 
 viewContactForm : Model -> Html Msg
