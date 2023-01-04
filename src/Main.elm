@@ -5,7 +5,7 @@ import Browser.Navigation as Nav
 import Data.Delivery as Delivery exposing (Delivery)
 import Data.Discount exposing (Discount)
 import Data.Model as Model exposing (Model)
-import Data.Msg exposing (Msg(..))
+import Data.Msg exposing (Msg(..), OrderFormMsg(..))
 import Data.Navigation exposing (Navigation)
 import Data.Order exposing (Order, OrderQuantities)
 import Data.Product exposing (Product)
@@ -15,10 +15,10 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (onInput)
 import Request.Client as Client
 import Request.Delivery as Delivery
-import String.Extra
 import Time
 import Time.Format
 import Time.Format.Config.Config_fr_fr exposing (config)
+import Update.OrderForm as OrderForm
 import Url
 
 
@@ -40,33 +40,12 @@ init _ url key =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg ({ navigation } as model) =
     case msg of
-        UpdateOrderQuantity productId quantity ->
+        UpdateOrderForm orderFormMsg ->
             let
-                updateOrderQuantity order =
-                    { order | quantities = Dict.update productId (\_ -> String.toInt quantity) model.currentOrder.quantities }
+                ( currentOrder, orderFormCmd ) =
+                    OrderForm.update orderFormMsg model.currentOrder
             in
-            ( { model | currentOrder = updateOrderQuantity model.currentOrder }, Cmd.none )
-
-        UpdateOrderName name ->
-            let
-                updateName order =
-                    { order | name = name }
-            in
-            ( { model | currentOrder = updateName model.currentOrder }, Cmd.none )
-
-        UpdateOrderPhoneNumber phoneNumber ->
-            let
-                updatePhoneNumber order =
-                    { order | phone_number = phoneNumber |> String.filter Char.isDigit |> String.Extra.wrapWith 2 " " }
-            in
-            ( { model | currentOrder = updatePhoneNumber model.currentOrder }, Cmd.none )
-
-        UpdateOrderEmail email ->
-            let
-                updateEmail order =
-                    { order | email = email }
-            in
-            ( { model | currentOrder = updateEmail model.currentOrder }, Cmd.none )
+            ( { model | currentOrder = currentOrder }, Cmd.map UpdateOrderForm orderFormCmd )
 
         LinkClicked urlRequest ->
             case urlRequest of
@@ -222,19 +201,19 @@ viewContactForm model =
     div [ class "contact-form" ]
         [ input
             [ placeholder "Votre nom ?"
-            , onInput UpdateOrderName
+            , onInput <| UpdateOrderForm << UpdateName
             , value model.currentOrder.name
             ]
             []
         , input
             [ placeholder "Entrez un email"
-            , onInput UpdateOrderEmail
+            , onInput <| UpdateOrderForm << UpdateEmail
             , value model.currentOrder.email
             ]
             []
         , input
             [ placeholder "Entrez un numéro de téléphone"
-            , onInput UpdateOrderPhoneNumber
+            , onInput <| UpdateOrderForm << UpdatePhoneNumber
             , value model.currentOrder.phone_number
             ]
             []
@@ -338,7 +317,7 @@ viewTableLine model delivery product =
             [ input
                 [ placeholder "Entrez la quantité que vous souhaitez commander"
                 , class "order-input"
-                , onInput (UpdateOrderQuantity product.id)
+                , onInput <| UpdateOrderForm << UpdateQuantity product.id
                 , value (String.fromInt quantity)
                 ]
                 []

@@ -1,8 +1,8 @@
 module Data.Navigation exposing (Navigation)
 
-import Browser.Navigation as Nav exposing (Key)
-import Url
+import Browser.Navigation exposing (Key)
+import Url exposing (Url)
 
 
 type alias Navigation =
-    { key : Key, url : Url.Url }
+    { key : Key, url : Url }
