@@ -10,6 +10,7 @@ import Data.Navigation exposing (Navigation)
 import Data.Order exposing (Order, OrderQuantities)
 import Data.Product exposing (Product)
 import Dict
+import Homepage exposing (homeView)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onInput)
@@ -87,6 +88,9 @@ view ({ navigation } as model) =
         "/commander" ->
             { title = "Commander", body = [ placeOrderView model ] }
 
+        "/" ->
+            { title = "Groupez", body = [ homeView ] }
+
         -- "/créer" ->
         --     { title = "Créer une nouvelle distribution", body = [ createDeliveryView model ] }
         _ ->
@@ -142,32 +146,30 @@ placeOrderView model =
             else
                 0
     in
-    div [ class "section container" ]
+    div [ class "container" ]
         (case model.errorMessage of
             Nothing ->
                 [ div []
-                    [ div [ class "delivery-info" ]
-                        [ h1 [] [ text delivery.delivery_name ]
-                        , div [ class "order-before" ]
-                            [ "⏳ Commandez avant le " ++ formatDate delivery.order_before |> text ]
-                        , case numberOfOrders of
-                            0 ->
-                                p [] []
-
-                            1 ->
-                                div [] [ "🤓 " ++ "Une commande déjà enregistrée" |> text ]
-
-                            _ ->
-                                div [] [ "🤓 " ++ (numberOfOrders |> String.fromInt) ++ " commandes déjà enregistrées" |> text ]
+                    [ h1 [] [ text delivery.delivery_name ]
+                    , div [ class "grid" ]
+                        [ div [ class "order-before" ]
+                            [ p []
+                                [ "⏳ Commandez avant le " |> text
+                                , mark []
+                                    [ formatDate delivery.order_before |> text ]
+                                ]
+                            ]
+                        , expectedDateView delivery
                         ]
-                    , expectedDateView delivery
                     ]
-                , div [ class "discounts" ] (List.map viewDiscount delivery.discounts)
+                , div [ class "info" ] (List.map viewDiscount delivery.discounts)
                 , viewOrderTable model delivery model.currentOrder
                 , div [ class "delivery-handler" ]
-                    [ "Cette commande est gérée par " ++ delivery.handler_name ++ ". Vous pouvez le⋅a joindre" |> text
-                    , a [ title ("Joindre " ++ delivery.handler_name ++ " par email via " ++ delivery.handler_email), href ("mailto:" ++ delivery.handler_email) ] [ "par email 📨" |> text ]
-                    , a [ title ("Joindre " ++ delivery.handler_name ++ " par téléphone au " ++ delivery.handler_phone), href ("tel:" ++ delivery.handler_phone) ] [ "ou par téléphone 📞." |> text ]
+                    [ p []
+                        [ "Cette commande est gérée par " ++ delivery.handler_name ++ ". Vous pouvez le⋅a joindre" |> text
+                        , a [ title ("Joindre " ++ delivery.handler_name ++ " par email via " ++ delivery.handler_email), href ("mailto:" ++ delivery.handler_email) ] [ " par email 📨" |> text ]
+                        , a [ title ("Joindre " ++ delivery.handler_name ++ " par téléphone au " ++ delivery.handler_phone), href ("tel:" ++ delivery.handler_phone) ] [ " ou par téléphone 📞." |> text ]
+                        ]
                     ]
                 , viewContactForm model
                 ]
@@ -193,7 +195,16 @@ expectedDateView delivery =
         div [] []
 
     else
-        div [ class "expected-date" ] [ "📅 Récupération des commandes prévue le " ++ formatDate delivery.expected_date |> text ]
+        div [ class "expected-date" ]
+            [ p []
+                [ "📅 Récupération le "
+                    |> text
+                , mark
+                    []
+                    [ formatDate delivery.expected_date |> text
+                    ]
+                ]
+            ]
 
 
 viewContactForm : Model -> Html Msg
@@ -217,11 +228,9 @@ viewContactForm model =
             , value model.currentOrder.phone_number
             ]
             []
-        , if isOrderReady model.currentOrder then
-            button [ class "button float-right" ] [ text "Enregistrer la commande" ]
-
-          else
-            p [ class "float-right" ] [ text "🤔 Votre commande n'est pas encore enregistréé, renseignez votre nom et les moyens de vous contacter, vous pourrez valider ensuite." ]
+        , button
+            [ disabled (isOrderReady model.currentOrder |> not) ]
+            [ text "Enregistrer la commande" ]
         ]
 
 

@@ -1,5 +1,5 @@
 import './main.css';
-import './milligram.css';
+import './pico.min.css';
 import { Elm } from './Main.elm';
 import * as serviceWorker from './serviceWorker';
 

@@ -5,19 +5,21 @@
 :root {
   --main-color: black;
   --error-background-color: rgb(232, 111, 59);
-  --error-text-color: rgb(255, 255, 255)
+  --error-text-color: rgb(255, 255, 255);
+  --spacing-company: 3rem;
+  --font-weight: 400;
+  --border-radius: 0;
 }
 
 body {
   font-family: 'Source Sans Pro', 'Trebuchet MS', 'Lucida Grande', 'Bitstream Vera Sans', 'Helvetica Neue', sans-serif;
   margin: 0;
-  text-align: center;
   color: #293c4b;
 }
 
 h1 {
   font-size: 2em !important;
-  padding-top : 0.5em;
+  padding-top: 0.5em;
 }
 
 img {
@@ -25,9 +27,6 @@ img {
   max-width: 200px;
 }
 
-.container {
-  max-width: 600px !important;
-}
 .description {
   font-size: 0.8em;
   font-style: italic;
@@ -38,7 +37,7 @@ img {
 
 .header {
   background-color: #fff;
-  box-shadow: 1px 1px 4px 0 rgba(0,0,0,.1);
+  box-shadow: 1px 1px 4px 0 rgba(0, 0, 0, .1);
   position: fixed;
   width: 100%;
   z-index: 3;
@@ -125,24 +124,24 @@ img {
   display: none;
 }
 
-.header .menu-btn:checked ~ .menu {
+.header .menu-btn:checked~.menu {
   max-height: 240px;
 }
 
-.header .menu-btn:checked ~ .menu-icon .navicon {
+.header .menu-btn:checked~.menu-icon .navicon {
   background: transparent;
 }
 
-.header .menu-btn:checked ~ .menu-icon .navicon:before {
+.header .menu-btn:checked~.menu-icon .navicon:before {
   transform: rotate(-45deg);
 }
 
-.header .menu-btn:checked ~ .menu-icon .navicon:after {
+.header .menu-btn:checked~.menu-icon .navicon:after {
   transform: rotate(45deg);
 }
 
-.header .menu-btn:checked ~ .menu-icon:not(.steps) .navicon:before,
-.header .menu-btn:checked ~ .menu-icon:not(.steps) .navicon:after {
+.header .menu-btn:checked~.menu-icon:not(.steps) .navicon:before,
+.header .menu-btn:checked~.menu-icon:not(.steps) .navicon:after {
   top: 0;
 }
 
@@ -152,14 +151,17 @@ img {
   .header li {
     float: left;
   }
+
   .header li a {
     padding: 20px 30px;
   }
+
   .header .menu {
     clear: none;
     float: right;
     max-height: none;
   }
+
   .header .menu-icon {
     display: none;
   }
@@ -168,11 +170,11 @@ img {
 .error {
   margin-top: 2em;
   padding: 1em;
-  background-color: var(--error-background-color  );
+  background-color: var(--error-background-color);
   color: var(--error-text-color)
 }
 
-.delivery-info > h1 {
+.delivery-info>h1 {
   margin-bottom: 0.2em;
 }
 
@@ -181,16 +183,40 @@ img {
   font-style: italic;
 }
 
-.delivery-handler > a {
+.delivery-handler>a {
   margin-left: 0.5em;
 }
 
-.discounts {
+.info {
   border: 2px black dotted;
   padding: 1em;
   margin-top: 1em;
 }
 
-.discounts p {
+.info p {
   margin-bottom: 0;
+}
+
+.hero {
+  background-color: #394046;
+  background-image: url("../public/background.png");
+  background-position: center;
+  background-size: cover;
+}
+
+
+header {
+  padding: var(--spacing-company) 0;
+}
+
+header hgroup> :last-child {
+  color: var(--h3-color);
+}
+
+header hgroup {
+  margin-bottom: var(--spacing-company);
+}
+
+#principles {
+  padding: var(--spacing-company);
 }
