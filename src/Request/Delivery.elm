@@ -1,9 +1,10 @@
 module Request.Delivery exposing (fetch)
 
-import Settings exposing (serverUrl)
-import Http
-import Data.Msg exposing (Msg(..))
 import Data.Delivery as Delivery
+import Data.Msg exposing (Msg(..))
+import Http
+import Settings exposing (serverUrl)
+
 
 fetch : Cmd Msg
 fetch =

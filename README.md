@@ -59,8 +59,8 @@ Je veux créer une distribution pour des ami⋅es, j'ai une interface assez simp
 
 ### Bénéficiaire
 
-Je reçois un lien de la part d'un ami, lorsque je clique dessus je peux spécifier une commande, qui sera enregistrée pour le gestionnaire.s
+Je reçois un lien, lorsque je clique dessus je peux commander.
 
 - Ajouter un texte « infos » pour préciser par exemple que ce sont des cartons de 12 bouteilles.
 - Je peux éditer ma commande
-- Je suis prévenu quand la commande à été récupérée par le gestionnaire
+- Je suis prévenu quand la commande est prête / récupérée par le gestionnaire
