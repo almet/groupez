@@ -7,6 +7,7 @@ import Json.Decode.Pipeline exposing (required)
 type alias Product =
     { id : String
     , name : String
+    , unit : String
     , description : String
     , price : Float
     }
@@ -17,5 +18,6 @@ decode =
     Decode.succeed Product
         |> required "id" string
         |> required "name" string
+        |> required "unit" string
         |> required "description" string
         |> required "price" float

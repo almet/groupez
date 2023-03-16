@@ -1,4 +1,4 @@
-module Data.Msg exposing (Msg(..), OrderFormMsg(..))
+module Data.Msg exposing (DeliveryFormMsg(..), Msg(..), OrderFormMsg(..))
 
 -- To expose all the types
 
@@ -10,13 +10,25 @@ import Url
 
 type Msg
     = UpdateOrderForm OrderFormMsg
+    | UpdateDeliveryForm DeliveryFormMsg
     | LinkClicked Browser.UrlRequest
     | UrlChanged Url.Url
     | GotDelivery (Result Http.Error Delivery)
+    | DeliveryInfosSubmitted
 
 
 type OrderFormMsg
-    = UpdateName String
-    | UpdatePhoneNumber String
-    | UpdateEmail String
-    | UpdateQuantity String String
+    = UpdateOrderName String
+    | UpdateOrderPhoneNumber String
+    | UpdateOrderEmail String
+    | UpdateOrderQuantity String String
+
+
+type DeliveryFormMsg
+    = UpdateDeliveryName String
+    | UpdateDeliveryHandlerName String
+    | UpdateDeliveryHandlerPhone String
+    | UpdateDeliveryHandlerEmail String
+    | UpdateDeliveryOrderBefore String
+    | UpdateDeliveryExpectedDate String
+    | UpdateHandlerAcceptsCalls Bool

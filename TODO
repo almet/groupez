@@ -7,3 +7,8 @@ Trucs à faire :
 Détails :
 
 - TTC ou HT ?
+- Enregistrer les infos concernant le handler (name, phone, email) quelque part
+- Peupler les champs qui peuvent être réutilisés
+- Product types (par exemple pour le vrac, ou pour les produits packagés)
+- Avoir une possibilité d'utiliser des templates, qui peuvent servir de point de
+  départ, et renseignés par les producteurs.

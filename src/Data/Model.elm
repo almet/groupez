@@ -1,4 +1,4 @@
-module Data.Model exposing (Model, empty)
+module Data.Model exposing (Model, NewDeliveryStatus(..), empty)
 
 import Data.Delivery as Delivery exposing (Delivery)
 import Data.Navigation exposing (Navigation)
@@ -10,7 +10,14 @@ type alias Model =
     , currentDelivery : Delivery
     , navigation : Navigation
     , errorMessage : Maybe String
+    , newDelivery : Delivery
+    , newDeliveryStatus : NewDeliveryStatus
     }
+
+
+type NewDeliveryStatus
+    = DeliveryIsEmpty
+    | DeliveryInfosEntered
 
 
 empty : Navigation -> Model
@@ -19,4 +26,6 @@ empty nav =
     , currentDelivery = Delivery.empty
     , errorMessage = Nothing
     , navigation = nav
+    , newDelivery = Delivery.empty
+    , newDeliveryStatus = DeliveryInfosEntered -- CHANGE
     }

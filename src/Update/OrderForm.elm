@@ -9,7 +9,7 @@ import String.Extra exposing (wrapWith)
 update : OrderFormMsg -> Order -> ( Order, Cmd OrderFormMsg )
 update msg currentOrder =
     case msg of
-        UpdateQuantity productId quantity ->
+        UpdateOrderQuantity productId quantity ->
             ( { currentOrder
                 | quantities =
                     currentOrder.quantities
@@ -18,15 +18,15 @@ update msg currentOrder =
             , Cmd.none
             )
 
-        UpdateName name ->
+        UpdateOrderName name ->
             ( { currentOrder | name = name }, Cmd.none )
 
-        UpdatePhoneNumber phoneNumber ->
+        UpdateOrderPhoneNumber phoneNumber ->
             ( { currentOrder
                 | phone_number = phoneNumber |> String.filter Char.isDigit |> wrapWith 2 " "
               }
             , Cmd.none
             )
 
-        UpdateEmail email ->
+        UpdateOrderEmail email ->
             ( { currentOrder | email = email }, Cmd.none )

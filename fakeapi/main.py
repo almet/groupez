@@ -41,30 +41,34 @@ def read_item(delivery_id: int):
         "handler_name": "Alexis",
         "handler_email": "alexis@example.org",
         "handler_phone": "0612345678",
-        "order_before": datetime(year=2022, month=5, day=1),
-        "expected_date": datetime(year=2022, month=6, day=16),
+        "order_before": datetime(year=2023, month=5, day=1),
+        "expected_date": datetime(year=2023, month=6, day=16),
         "products": [
             {
                 "id": "ST75",
                 "name": "Souffle Tropical 75cl",
+                "unit": "75cl",
                 "description": "American Wheat Citra / Mosaic. Bière de blé assez légère et fruitée, notes de fruits exotiques. 4,5°alc",
                 "price": 5,
             },
             {
                 "id": "NM75",
                 "name": "Nouveau Monde 75cl",
+                "unit": "75cl",
                 "description": "American Pale Ale Chinook / Cascade. Amertume marquée, plutôt sur l'agrume. 5°alc",
                 "price": 5,
             },
             {
                 "id": "EPT75",
                 "name": "En Pleine Tempête 75cl",
+                "unit": "75cl",
                 "description": "London Bitter, assez légère, notes de pain grillé. 5°alc",
                 "price": 5,
             },
             {
                 "id": "EQD75",
                 "name": "L'Eau Qui Dort 75cl",
+                "unit": "75cl",
                 "description": "Stout à la vanille / Bière noire sur des aromes de torréfaction (Café / Cacao) avec du sucre résiduel et de la vanille. 6°alc",
                 "price": 6,
             },
@@ -108,7 +112,7 @@ def read_item(item_id: int, q: Optional[str] = None):
     return {"item_id": item_id, "q": q}
 
 
-# 2. Orders : An orer, placed by an entity (individual or group)
+# 2. Orders : An order, placed by an entity (individual or group)
 # - name
 # - phone_number
 # - email

@@ -1,10 +1,13 @@
-module Homepage exposing (..)
+module Views.Homepage exposing (view)
 
+import Data.Model exposing (Model)
+import Data.Msg exposing (Msg)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 
 
-homeView =
+view : Model -> Html Msg
+view _ =
     div []
         [ div
             [ class "hero"
@@ -76,9 +79,8 @@ homeView =
                     ]
                 , p []
                     [ a
-                        [ href "#"
+                        [ href "/create"
                         , attribute "role" "button"
-                        , attribute "onclick" "event.preventDefault()"
                         ]
                         [ text "Créez votre prochaine distribution" ]
                     ]
