@@ -1,4 +1,4 @@
-module Data.Product exposing (Product, decode)
+module Data.Product exposing (Product, decode, empty)
 
 import Json.Decode as Decode exposing (Decoder, float, string)
 import Json.Decode.Pipeline exposing (required)
@@ -21,3 +21,8 @@ decode =
         |> required "unit" string
         |> required "description" string
         |> required "price" float
+
+
+empty : Product
+empty =
+    Product "" "" "" "" 0.0

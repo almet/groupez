@@ -1,7 +1,8 @@
 module Views.CreateDelivery exposing (view)
 
 import Data.Model exposing (Model, NewDeliveryStatus(..))
-import Data.Msg exposing (DeliveryFormMsg(..), Msg(..))
+import Data.Msg exposing (DeliveryFormMsg(..), Msg(..), ProductFormMsg(..))
+import Data.Product exposing (Product)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onCheck, onClick, onInput, onSubmit)
@@ -116,13 +117,28 @@ viewDeliveryInfo model =
 
 viewDeliveryProducts : Model -> Html Msg
 viewDeliveryProducts model =
+    div []
+        [ ul [] (List.map viewProduct model.newDelivery.products)
+        , viewProductCreation model.currentProduct
+        ]
+
+
+viewProduct : Product -> Html Msg
+viewProduct product =
+    li []
+        [ text product.name, a [] [ text "edit" ] ]
+
+
+viewProductCreation : Product -> Html Msg
+viewProductCreation product =
     div
         []
-        [ h2 [] [ text "Quels sont les produits ?" ]
+        [ h2 [] [ text "➕ Ajouter un produit" ]
         , Html.form []
             [ input
                 [ id "product-id"
                 , type_ "hidden"
+                , value product.id
                 ]
                 []
             , label [ for "product-name" ]
@@ -131,6 +147,8 @@ viewDeliveryProducts model =
                     [ id "product-name"
                     , type_ "text"
                     , placeholder "Par ex. « Lentilles vertes »"
+                    , onInput <| UpdateProductForm << UpdateProductName
+                    , value product.name
                     ]
                     []
                 ]
@@ -140,6 +158,8 @@ viewDeliveryProducts model =
                     [ id "product-unit"
                     , type_ "text"
                     , placeholder "Par ex. « Sac de 5kg »"
+                    , onInput <| UpdateProductForm << UpdateProductUnit
+                    , value product.unit
                     ]
                     []
                 ]
@@ -149,6 +169,8 @@ viewDeliveryProducts model =
                     [ id "product-description"
                     , type_ "text"
                     , placeholder "Toute information complémentaire qui pourrait être utile."
+                    , onInput <| UpdateProductForm << UpdateProductDescription
+                    , value product.description
                     ]
                     []
                 ]
@@ -158,14 +180,18 @@ viewDeliveryProducts model =
                     [ id "product-price"
                     , type_ "number"
                     , placeholder ""
+                    , onInput <| UpdateProductForm << UpdateProductPrice
+                    , value (product.price |> String.fromFloat)
                     ]
                     []
                 ]
             ]
-        , a
+        , button
             [ href ""
             , attribute "role" "button"
-            , onClick <| DeliveryInfosSubmitted
+            , onClick <| UpdateDeliveryProduct
+            , disabled ([ product.name, product.unit ] |> List.any String.isEmpty)
+            , class "small"
             ]
             [ text "Ajouter ce produit" ]
         ]

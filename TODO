@@ -1,14 +1,24 @@
 Trucs à faire :
 
-- Une page sur laquelle on peut créer une distribution
-- Une page d'accueil un peu sympa
-- Un endroit avec le résumé des commandes passées + possibilité de modifier.
+- [ ] Une page de création de distribution
+  - [ ] Ajout de plusieurs produits
+  - [ ] Permettre la modification des produits
+- [ ] Enregistrer les données de distribution en local
+- [ ] Gérer les URLs correctement (faire un appel à l'API en fonction)
+- [ ] Gérer les différentes étapes de création avec des modifications d'URL
+- [ ] Afficher un endroit avec le résumé des commandes passées + la possibilité d'en reprendre une.
+- [ ] Laisser la possibilité de payer en ligne ou de payer sur place.
+- [ ] Prévoir une API pour le suivi des paiements.
 
-Détails :
-
-- TTC ou HT ?
-- Enregistrer les infos concernant le handler (name, phone, email) quelque part
-- Peupler les champs qui peuvent être réutilisés
-- Product types (par exemple pour le vrac, ou pour les produits packagés)
-- Avoir une possibilité d'utiliser des templates, qui peuvent servir de point de
+Détails : 
+- [ ] Faire une API REST avec Django REST Framework
+- [ ] Préciser pour les prix : TTC ou HT ?
+- [ ] Enregistrer les infos concernant le handler (name, phone, email) quelque part dans le navigateur.
+- [ ] Peupler les champs qui peuvent être réutilisés
+- [ ] Gérer différents tpes de produits avec un champ types (par exemple pour le vrac, ou pour les produits packagés)
+- [ ] Avoir une possibilité d'utiliser des templates, qui peuvent servir de point de
   départ, et renseignés par les producteurs.
+
+Page d'accueil : 
+- [ ] Mobile friendly
+- [ ] Gestion et suivi des paiements

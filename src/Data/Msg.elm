@@ -1,4 +1,4 @@
-module Data.Msg exposing (DeliveryFormMsg(..), Msg(..), OrderFormMsg(..))
+module Data.Msg exposing (DeliveryFormMsg(..), Msg(..), OrderFormMsg(..), ProductFormMsg(..))
 
 -- To expose all the types
 
@@ -11,10 +11,14 @@ import Url
 type Msg
     = UpdateOrderForm OrderFormMsg
     | UpdateDeliveryForm DeliveryFormMsg
+    | UpdateProductForm ProductFormMsg
     | LinkClicked Browser.UrlRequest
     | UrlChanged Url.Url
     | GotDelivery (Result Http.Error Delivery)
     | DeliveryInfosSubmitted
+    | UpdateDeliveryProduct
+    | GenerateRandomProductID
+    | ProductIDGenerated String
 
 
 type OrderFormMsg
@@ -32,3 +36,11 @@ type DeliveryFormMsg
     | UpdateDeliveryOrderBefore String
     | UpdateDeliveryExpectedDate String
     | UpdateHandlerAcceptsCalls Bool
+
+
+type ProductFormMsg
+    = UpdateProductId String
+    | UpdateProductName String
+    | UpdateProductUnit String
+    | UpdateProductDescription String
+    | UpdateProductPrice String

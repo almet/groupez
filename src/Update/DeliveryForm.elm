@@ -32,3 +32,8 @@ update msg currentDelivery =
 
         UpdateHandlerAcceptsCalls accepts ->
             ( { currentDelivery | handler_accepts_calls = accepts }, Cmd.none )
+
+
+
+-- UpdateDeliveryUpdateProduct product ->
+--     ( { currentDelivery | products = accepts }, Cmd.none )
